@@ -20,6 +20,8 @@ It enhances their work through:
 [![Issue Count](https://codeclimate.com/github/anywhichway/cycler/badges/issue_count.svg)](https://codeclimate.com/github/anywhichway/cycler)
 
 
+[![NPM](https://nodei.co/npm/cycler.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/cycler/)
+
 For reference here is the cycle.js data:
 
 [![NPM](https://nodei.co/npm/cycle.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/cycle/)
