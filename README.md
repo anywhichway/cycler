@@ -14,7 +14,7 @@ It enhances their work through:
 * the addition of unit tests
 
 [![Build Status](https://travis-ci.org/anywhichway/cycler.svg)](https://travis-ci.org/anywhichway/cycler)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/42cd44eee8794c22aa7a4f780abd2d0b)](https://www.codacy.com/app/syblackwell/cycler)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/f46753323da34de8af383e7fa478d7c2)](https://www.codacy.com/app/syblackwell/cycler)
 [![Code Climate](https://codeclimate.com/github/anywhichway/cycler/badges/gpa.svg)](https://codeclimate.com/github/anywhichway/cycler)
 [![Test Coverage](https://codeclimate.com/github/anywhichway/cycler/badges/coverage.svg)](https://codeclimate.com/github/anywhichway/cycler/coverage)
 [![Issue Count](https://codeclimate.com/github/anywhichway/cycler/badges/issue_count.svg)](https://codeclimate.com/github/anywhichway/cycler)
