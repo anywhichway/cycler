@@ -159,7 +159,7 @@ cycler.retrocycle = function retrocycle($,context) {
 // Object containing $kind member are converted to the kind specified
 // Arrays with last member {$kind: <some kind>} are converted to the specified kind of array
 
-// The eval function is used to locate the values described by a PATH. The
+// A dynamic Function is used to locate the values described by a PATH. The
 // root object is kept in a $ variable. A regular expression is used to
 // assure that the PATH is extremely well formed. The regexp contains nested
 // * quantifiers. That has been known to have extremely bad performance

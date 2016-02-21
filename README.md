@@ -7,17 +7,17 @@ ensures that functional semantics follow along with data as it is transmitted or
 
 It enhances their work through:
 
--- the utilization of newer JavaScript constructs such as Map,
--- ensuring objects are restored as instances of their original kind rather than just POJOs
--- providing support for proper handling of classes derived from Array
--- distinct packaging for NodeJS and the browser including pre-minified code
--- the addition of unit tests
+* the utilization of newer JavaScript constructs such as Map,
+* ensuring objects are restored as instances of their original kind rather than just POJOs
+* providing support for proper handling of classes derived from Array
+* distinct packaging for NodeJS and the browser including pre-minified code
+* the addition of unit tests
 
-[![Build Status](https://travis-ci.org/anywhichway/recycler.svg)](https://travis-ci.org/anywhichway/recycler)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/42cd44eee8794c22aa7a4f780abd2d0b)](https://www.codacy.com/app/syblackwell/recycler)
-[![Code Climate](https://codeclimate.com/github/anywhichway/recycler/badges/gpa.svg)](https://codeclimate.com/github/anywhichway/recycler)
-[![Test Coverage](https://codeclimate.com/github/anywhichway/recycler/badges/coverage.svg)](https://codeclimate.com/github/anywhichway/recycler/coverage)
-[![Issue Count](https://codeclimate.com/github/anywhichway/recycler/badges/issue_count.svg)](https://codeclimate.com/github/anywhichway/recycler)
+[![Build Status](https://travis-ci.org/anywhichway/cycler.svg)](https://travis-ci.org/anywhichway/cycler)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/42cd44eee8794c22aa7a4f780abd2d0b)](https://www.codacy.com/app/syblackwell/cycler)
+[![Code Climate](https://codeclimate.com/github/anywhichway/cycler/badges/gpa.svg)](https://codeclimate.com/github/anywhichway/cycler)
+[![Test Coverage](https://codeclimate.com/github/anywhichway/cycler/badges/coverage.svg)](https://codeclimate.com/github/anywhichway/cycler/coverage)
+[![Issue Count](https://codeclimate.com/github/anywhichway/cycler/badges/issue_count.svg)](https://codeclimate.com/github/anywhichway/cycler)
 
 
 For reference here is the cycle.js data:
