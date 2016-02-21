@@ -216,20 +216,18 @@ cycler.retrocycle = function retrocycle($,context) {
                 }
             } else {
                 for (name in value) {
-                    if (typeof value[name] === 'object') {
-                        item = value[name];
-                        if (item) { 
-                        	// added by AnyWhichWay, Feb 2016
-                        	item = convert.call(context,item);
-                        	// re-assign in case item has been converted
-                           	value[name] = item;
-                            // end AnyWhichWay addition
-                            path = item.$ref;
-                            if (typeof path === 'string' && px.test(path)) {
-                                value[name] = resolve(path);
-                            } else {
-                                rez(item);
-                            }
+                	item = value[name];
+                    if (item && typeof value[name] === 'object') {
+                    	// added by AnyWhichWay, Feb 2016
+                    	item = convert.call(context,item);
+                    	// re-assign in case item has been converted
+                       	value[name] = item;
+                        // end AnyWhichWay addition
+                        path = item.$ref;
+                        if (typeof path === 'string' && px.test(path)) {
+                            value[name] = resolve(path);
+                        } else {
+                            rez(item);
                         }
                     }
                 }
