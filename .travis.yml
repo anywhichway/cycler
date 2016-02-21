@@ -3,6 +3,6 @@ node_js:
   - "stable"
 addons:
    code_climate:
-       repo_token: 485ac6bad05c6b834e2faa9b4ed67afb7035b8ab8ae38983751efd50a0365233
+       repo_token: c11828dbc9bc10878e523aeffd76dda89f2af267b29a0cbcd35227bb2664962d
 after_script:
   - codeclimate-test-reporter < ./coverage/lcov.info
