@@ -1,6 +1,6 @@
 {
   "name": "cycler",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A NodeJS library for 'decyling' and 'recycling' cyclic Javascript objects.",
   "keywords": [
     "JavaScript",
