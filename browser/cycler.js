@@ -149,6 +149,9 @@ function convert(item) {
 
 cycler.retrocycle = function retrocycle($,context) {
 
+	function resolve(string) {
+		return eval(string);
+	}
 // Restore an object that was reduced by decycle. Members whose values are
 // objects of the form
 //      {$ref: PATH}
@@ -193,8 +196,8 @@ cycler.retrocycle = function retrocycle($,context) {
 
         var i, item, name, path;
 
-        if (value && typeof value === 'object') {
-            if (Object.prototype.toString.apply(value) === '[object Array]' || value instanceof Array) { // AnyWhichWay added instanceof check, Feb 2016
+        //if (value && typeof value === 'object') {
+            if (value && (Object.prototype.toString.apply(value) === '[object Array]' || value instanceof Array)) { // AnyWhichWay added instanceof check, Feb 2016
                 for (i = 0; i < value.length; i += 1) {
                     item = value[i];
                     if (item && typeof item === 'object') {
@@ -205,7 +208,7 @@ cycler.retrocycle = function retrocycle($,context) {
                        	// end AnyWhichWay addition
                         path = item.$ref;
                         if (typeof path === 'string' && px.test(path)) {
-                            value[i] = eval(path); 
+                            value[i] = resolve(path); 
                         } else {
                             rez(item);
                         }
@@ -223,7 +226,7 @@ cycler.retrocycle = function retrocycle($,context) {
                             // end AnyWhichWay addition
                             path = item.$ref;
                             if (typeof path === 'string' && px.test(path)) {
-                                value[name] = eval(path);
+                                value[name] = resolve(path);
                             } else {
                                 rez(item);
                             }
@@ -231,7 +234,7 @@ cycler.retrocycle = function retrocycle($,context) {
                     }
                 }
             }
-        }
+      //  }
     }($));
     return $;
 }

@@ -1,7 +1,7 @@
 {
   "name": "cycler",
-  "version": "0.0.2",
-  "description": "A NodeJS library for 'decyling' and 'recycling' cyclic Javascript objects.",
+  "version": "0.0.3",
+  "description": "A browser and NodeJS library for 'decyling' and 'recycling' cyclic Javascript objects.",
   "keywords": [
     "JavaScript",
     "cyclic",
