@@ -186,7 +186,7 @@ cycler.retrocycle = function retrocycle($,context) {
 // produces an array containing a single element which is the array itself.
 	
 	// AnyWhichWay, Feb 2016, establish the context
-	context = (context ? context : (this ? this : (typeof(window)!=="undefined" ? window : null)));
+	context = (context ? context : (typeof(window)!=="undefined" ? window : global));
 	
 	// AnyWhichWay, Feb 2016 do any required top-level conversion from POJO's to $classs
 	$ = resurrect(context,$);
@@ -206,45 +206,18 @@ cycler.retrocycle = function retrocycle($,context) {
 // and capability rather than just a general object. If no constructor exists, a
 // POJO is used.
 
-        var i, item, name, path;
-
-        //if (value && typeof value === 'object') {
-            if (Array.isArray(value)  || value instanceof Array) { // AnyWhichWay added instanceof check, Feb 2016
-                for (i = 0; i < value.length; i += 1) {
-                    item = value[i];
-                    if (item && typeof item === 'object') {
-                    	// added by AnyWhichWay, Feb 2016
-                    	item = resurrect(context,item);
-                    	// re-assign in case item has been converted
-                       	value[i] = item;
-                       	// end AnyWhichWay addition
-                        path = item.$ref;
-                        if (typeof path === 'string' && px.test(path)) {
-                            value[i] = resolve(path); 
-                        } else {
-                            rez(item);
-                        }
-                    }
-                }
-            } else {
-                for (name in value) {
-                	item = value[name];
-                    if (item && typeof value[name] === 'object') {
-                    	// added by AnyWhichWay, Feb 2016
-                    	item = resurrect(context,item);
-                    	// re-assign in case item has been converted
-                       	value[name] = item;
-                        // end AnyWhichWay addition
-                        path = item.$ref;
-                        if (typeof path === 'string' && px.test(path)) {
-                            value[name] = resolve(path);
-                        } else {
-                            rez(item);
-                        }
-                    }
-                }
+		// AnyWhichWay, Feb 2016, replaced separate array and object loops with forEach
+        Object.keys(value).forEach(function(name) {
+        	var item = resurrect(context,value[name]); 
+        	// re-assign in case item has been converted
+           	value[name] = item;
+            if (item && typeof item === 'object' && typeof item.$ref === 'string' && px.test(item.$ref)) {
+                value[name] = resolve(item.$ref);
+            } else if(item && typeof item === 'object') {
+                rez(item);
             }
-      //  }
+        });
+
     }($));
     return $;
 }
