@@ -13,3 +13,4 @@ ratings:
 exclude_paths:
 - test/**/*
 - browser/**/*
+- legacy/**/*
