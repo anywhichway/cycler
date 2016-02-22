@@ -1,4 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (global){
 /*
     Copyright, Feb 2016, AnyWhichWay
     
@@ -7,7 +8,7 @@
     Substantive portions based on:
     
     cycle.js
-    2013-02-19 crockford
+    2013-02-19 douglas crockford
 
     Public Domain.
     
@@ -16,6 +17,27 @@
 	"use strict";
 
 var cycler = {};
+
+// AnyWhichWay, Feb 2016, isolates code for tagging objects with $class during decycle
+// See resurrect for the converse
+function augment(context,original,decycled) {
+	var classname = original.constructor.name;
+	if(!classname || classname==="") { // look in context if classname not available
+    	Object.keys(context).some(function(name) {
+    		if(context[name]===original.constructor) {
+    			classname = name;
+    			return true;
+    		}
+    	});
+    }
+	if(classname && classname.length>0) { // add the $class info to array or object
+		if(Array.isArray(decycled)) {
+			decycled.push({$class: classname});
+	        return;
+	    }
+		decycled.$class = classname;
+	}
+}
 
 cycler.decycle = function decycle(object, context) {
 
@@ -30,13 +52,15 @@ cycler.decycle = function decycle(object, context) {
 //      a[0] = a;
 //      return JSON.stringify(JSON.decycle(a));
 // produces the string '[{"$ref":"$"}]'.
+// Add a $class property to objects or element to arrays so that they can
+// be restored as their original kind.
 
 // JSONPath is used to locate the unique object. $ indicates the top level of
 // the object or array. [NUMBER] or [STRING] indicates a child member or
 // property.
 
-   // AnyWhichWay do any required top-level conversion from POJO's to $kinds
-   context = (context ? context : (this ? this : (typeof(window)!=="undefined" ? window : null)));
+   // AnyWhichWay, Feb 2016, establish context
+   context = (context ? context : (typeof(window)!=="undefined" ? window : global));
 
    var objects = new Map(); // AnyWhichWay, replaced objects and paths arrays with Map, Feb 2016
 
@@ -61,33 +85,23 @@ cycler.decycle = function decycle(object, context) {
 
 // If the value is an object or array, look to see if we have already
 // encountered it. If so, return a $ref/path object. 
-
             pathfound = objects.get(value); // AnyWhichWay replaced array loops with Map get, Feb 2016
             if(pathfound) {
             	return {$ref: pathfound};
             }
-        	
 // Otherwise, accumulate the unique value and its path.
-			objects.set(value,path); // AnyWhichWay replace array objects and paths with Map, Feb 2016
-// If it is an array, replicate the array.
-            if (Object.prototype.toString.apply(value) === '[object Array]' || value instanceof Array) { // instanceof added by AnyWhichWay, Feb 2016
+			objects.set(value,path); // AnyWhichWay, Feb 2016 replace array objects and paths with Map, Feb 2016
+// If it is an array, replicate the array and return copy.
+            if (Array.isArray(value)  || value instanceof Array) { // instanceof added by AnyWhichWay, Feb 2016
                 nu = [];
                 for (i = 0; i < value.length; i += 1) {
                     nu[i] = derez(value[i], path + '[' + i + ']');
                 }
-                // AnyWhichWay augment array with $kind
-                if(!value.constructor.name) {
-                	Object.keys(context).some(function(name) {
-                		if(context[name]===value.constructor) {
-                			nu.push({$kind: name});
-                			return true;
-                		}
-                	});
-                } else {
-                    nu.push({$kind: value.constructor.name});
-                }
-            } else {
-// If it is an object, replicate the object.
+                augment(context,value,nu); // AnyWhichWay, Feb 2016 augment with $class
+                return nu;
+            }   
+                
+// If it is an object, replicate the object and return copy.
                 nu = {};
                 for (name in value) {
                     if (Object.prototype.hasOwnProperty.call(value, name)) {
@@ -95,55 +109,51 @@ cycler.decycle = function decycle(object, context) {
                             path + '[' + JSON.stringify(name) + ']');
                     }
                 }
-                // AnyWhichWay augment objects with $kind
-                if(!value.constructor.name) {
-                	Object.keys(context).some(function(name) {
-                		if(context[name]===value.constructor) {
-                			nu.$kind = name;
-                			return true;
-                		}
-                	});
-                } else {
-                	nu.$kind = value.constructor.name; 
-                }
-            }
-            return nu;
+                augment(context,value,nu); // AnyWhichWay, Feb 2016 augment with $class
+                return nu;
         }
+// Otherwise, just return value
         return value;
     }(object, '$'));
 };
 
-function convert(item) {
-	var obj;
-	if(item && item.$kind) {
-		// make sure constructors exist in target environment
-		if(typeof(this[item.$kind])==="function") {
-          	obj = Object.create(this[item.$kind].prototype);
-       		obj.constructor = this[item.$kind];
+// AnyWhichWay, Feb 2016, isolates code for resurrecting objects as their original type
+// see augment for inverse
+function resurrect(context,item) {
+	var obj; // temporary variable
+	// process objects and return possibly modified item
+	if(item && item.$class) {
+		if(typeof(context[item.$class])==="function") { // make sure constructors exist in target environment
+          	obj = Object.create(context[item.$class].prototype);
+       		obj.constructor = context[item.$class];
        		for(var key in item) {
-       			if(key!=="$kind") {
+       			if(key!=="$class") { // skip the $class data
        				obj[key] = item[key];
        			}
        		}
-       		item = obj;
-		} else {
-			delete item.$kind;
+       		return obj;
 		}
-   	// $kind exists as the single data member of the last item in an Array
-   	} else if(item instanceof Array) {
-   		if(item[item.length-1].$kind && Object.keys(item[item.length-1]).length===1) {
-   			if(typeof(this[item[item.length-1].$kind])==="function") {
-           		obj = Object.create(this[item[item.length-1].$kind].prototype);
-           		obj.constructor = this[item[item.length-1].$kind];
-           		for(var i=0;i<item.length-1;i++) {
+		// otherwise delete the $class data
+		delete item.$class;
+		return item;
+   	}
+	// process arrays and return possibly modified item
+	if(Array.isArray(item)) { // $class exists as the single data member of the last item in an Array
+   		if(item[item.length-1].$class && Object.keys(item[item.length-1]).length===1) {
+   			if(typeof(context[item[item.length-1].$class])==="function") {
+           		obj = Object.create(context[item[item.length-1].$class].prototype);
+           		obj.constructor = context[item[item.length-1].$class];
+           		for(var i=0;i<item.length-1;i++) { // note -1 to skip the $class data
            			obj.push(item[i]);
            		}
-           		item = obj;
-   			} else {
-   				item.splice(item.length-1,1);
+           		return obj;
    			}
+   			// otherwise delete the $class data
+   			item.splice(item.length-1,1);
+   			return item;
    		}
    	}
+	// otherwise return null or non instanceof object data
 	return item;
 }
 
@@ -158,9 +168,9 @@ cycler.retrocycle = function retrocycle($,context) {
 // are replaced with references to the value found by the PATH. This will
 // restore cycles. The object will be mutated.
 
-// AnyWhichWay
-// Object containing $kind member are converted to the kind specified
-// Arrays with last member {$kind: <some kind>} are converted to the specified kind of array
+// AnyWhichWay, Feb 2016
+// Objects containing $class member are converted to the class specified
+// Arrays with last member {$class: <some kind>} are converted to the specified class of array
 
 // A dynamic Function is used to locate the values described by a PATH. The
 // root object is kept in a $ variable. A regular expression is used to
@@ -175,20 +185,22 @@ cycler.retrocycle = function retrocycle($,context) {
 //      return JSON.retrocycle(JSON.parse(s));
 // produces an array containing a single element which is the array itself.
 	
-	// AnyWhichWay do any required top-level conversion from POJO's to $kinds
+	// AnyWhichWay, Feb 2016, establish the context
 	context = (context ? context : (this ? this : (typeof(window)!=="undefined" ? window : null)));
-	$ = convert.call(context,$);
 	
-    var obj, px =
+	// AnyWhichWay, Feb 2016 do any required top-level conversion from POJO's to $classs
+	$ = resurrect(context,$);
+	
+    var px =
         /^\$(?:\[(?:\d+|\"(?:[^\\\"\u0000-\u001f]|\\([\\\"\/bfnrt]|u[0-9a-zA-Z]{4}))*\")\])*$/;
 
     (function rez(value) {
 
 // Modified by AnyWhichWay, Feb 2016
 // The rez function walks recursively through the object looking for $ref
-// and $kind properties or array values. When it finds a $ref value that is a path, 
+// and $class properties or array values. When it finds a $ref value that is a path, 
 // then it replaces the $ref object with a reference to the value that is found by
-// the path. When it finds a $kind value that names a function in the global scope,
+// the path. When it finds a $class value that names a function in the global scope,
 // it assumes the function is a constructor and uses it to create an object which
 // replaces the JSON such that it is restored with the appropriate class semantics
 // and capability rather than just a general object. If no constructor exists, a
@@ -197,12 +209,12 @@ cycler.retrocycle = function retrocycle($,context) {
         var i, item, name, path;
 
         //if (value && typeof value === 'object') {
-            if (value && (Object.prototype.toString.apply(value) === '[object Array]' || value instanceof Array)) { // AnyWhichWay added instanceof check, Feb 2016
+            if (Array.isArray(value)  || value instanceof Array) { // AnyWhichWay added instanceof check, Feb 2016
                 for (i = 0; i < value.length; i += 1) {
                     item = value[i];
                     if (item && typeof item === 'object') {
                     	// added by AnyWhichWay, Feb 2016
-                    	item = convert.call(context,item);
+                    	item = resurrect(context,item);
                     	// re-assign in case item has been converted
                        	value[i] = item;
                        	// end AnyWhichWay addition
@@ -219,7 +231,7 @@ cycler.retrocycle = function retrocycle($,context) {
                 	item = value[name];
                     if (item && typeof value[name] === 'object') {
                     	// added by AnyWhichWay, Feb 2016
-                    	item = convert.call(context,item);
+                    	item = resurrect(context,item);
                     	// re-assign in case item has been converted
                        	value[name] = item;
                         // end AnyWhichWay addition
@@ -247,4 +259,5 @@ if (this.exports) {
 }
 
 }).call((typeof(window)!=='undefined' ? window : (typeof(module)!=='undefined' ? module : null)));
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}]},{},[1]);
