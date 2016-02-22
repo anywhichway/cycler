@@ -98,7 +98,7 @@
 				if (Array.isArray(value) || value instanceof Array) { // instanceof added by AnyWhichWay, Feb 2016
 					nu = [];
 					for (i = 0; i < value.length; i += 1) {
-						nu[i] = derez(value[i], path + '[' + i + ']');
+						nu[i] = derez(value[i], path + "[" + i + "]");
 					}
 					augment(context, value, nu); // AnyWhichWay, Feb 2016 augment with $class
 					return nu;
@@ -108,8 +108,8 @@
 				nu = {};
 				for (name in value) {
 					if (Object.prototype.hasOwnProperty.call(value, name)) {
-						nu[name] = derez(value[name], path + '['
-								+ JSON.stringify(name) + ']');
+						nu[name] = derez(value[name], path + "["
+								+ JSON.stringify(name) + "]");
 					}
 				}
 				augment(context, value, nu); // AnyWhichWay, Feb 2016 augment with $class
@@ -117,48 +117,44 @@
 			}
 			// Otherwise, just return value
 			return value;
-		}(object, '$'));
+		}(object, "$"));
 	};
 
-	// AnyWhichWay, Feb 2016, isolates code for resurrecting objects as their original type
-	// see augment for inverse
-	function resurrect(context, item) {
+	function getConstructor(context,item) {
 		var obj; // temporary variable
 		// process objects and return possibly modified item
 		if (item && item.$class) {
-			if (typeof (context[item.$class]) === "function") { // make sure constructors exist in target environment
-				obj = Object.create(context[item.$class].prototype);
-				obj.constructor = context[item.$class];
-				for ( var key in item) {
-					if (key !== "$class") { // skip the $class data
-						obj[key] = item[key];
-					}
-				}
-				return obj;
+			if(typeof (context[item.$class]) === "function") {
+				return context[item.$class];
+			}
+			delete item.$class;
+		}
+		if (Array.isArray(item) && item[item.length - 1].$class
+				&& Object.keys(item[item.length - 1]).length === 1) {
+			if(typeof (context[item[item.length - 1].$class]) === "function") {
+				return context[item[item.length - 1].$class];
 			}
 			// otherwise delete the $class data
-			delete item.$class;
-			return item;
+			item.splice(item.length - 1, 1);
 		}
-		// process arrays and return possibly modified item
-		if (Array.isArray(item)) { // $class exists as the single data member of the last item in an Array
-			if (item[item.length - 1].$class
-					&& Object.keys(item[item.length - 1]).length === 1) {
-				if (typeof (context[item[item.length - 1].$class]) === "function") {
-					obj = Object
-							.create(context[item[item.length - 1].$class].prototype);
-					obj.constructor = context[item[item.length - 1].$class];
-					for (var i = 0; i < item.length - 1; i++) { // note -1 to skip the $class data
-						obj.push(item[i]);
-					}
-					return obj;
+		return undefined;
+	}
+	// AnyWhichWay, Feb 2016, isolates code for resurrecting objects as their original type
+	// see augment for inverse
+	function resurrect(context, item) {
+		var obj, // temporary variable
+			cons = getConstructor(context,item)
+		// process objects and return possibly modified item
+		if (cons) {
+			obj = Object.create(cons.prototype);
+			obj.constructor = cons;
+			Object.keys(item).forEach(function(key,i) {
+				if (key !== "$class" && (i!==item.length-1 || !(Array.isArray(item) || item instanceof Array))) { // skip the $class data
+					obj[key] = item[key];
 				}
-				// otherwise delete the $class data
-				item.splice(item.length - 1, 1);
-				return item;
-			}
+			});
+			return obj;
 		}
-		// otherwise return null or non instanceof object data
 		return item;
 	}
 
@@ -225,7 +221,7 @@
 
 		}($));
 		return $;
-	}
+	};
 
 	if (this.exports) {
 		this.exports = cycler;
