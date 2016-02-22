@@ -71,8 +71,7 @@
 
 			var i, // The loop counter
 			pathfound, // AnyWhichWay added Feb 2016
-			name, // Property name
-			nu; // The new object or array
+			nu = (Array.isArray(value) || value instanceof Array ? [] : {}); // The new object or array
 
 			// typeof null === "object", so go on if this value is really an object but not
 			// one of the weird builtin objects.
@@ -92,24 +91,9 @@
 				}
 				// Otherwise, accumulate the unique value and its path.
 				objects.set(value, path); // AnyWhichWay, Feb 2016 replace array objects and paths with Map, Feb 2016
-				// If it is an array, replicate the array and return copy.
-				if (Array.isArray(value) || value instanceof Array) { // instanceof added by AnyWhichWay, Feb 2016
-					nu = [];
-					for (i = 0; i < value.length; i += 1) {
-						nu[i] = derez(value[i], path + "[" + i + "]");
-					}
-					augment(context, value, nu); // AnyWhichWay, Feb 2016 augment with $class
-					return nu;
-				}
-
-				// If it is an object, replicate the object and return copy.
-				nu = {};
-				for (name in value) {
-					if (Object.prototype.hasOwnProperty.call(value, name)) {
-						nu[name] = derez(value[name], path + "["
-								+ JSON.stringify(name) + "]");
-					}
-				}
+				Object.keys(value).forEach(function(key) {
+					nu[key] = derez(value[key], path + "[" + (Array.isArray(nu) ? key : JSON.stringify(key)) + "]");
+				});
 				augment(context, value, nu); // AnyWhichWay, Feb 2016 augment with $class
 				return nu;
 			}
@@ -127,7 +111,7 @@
 			}
 			delete item.$class;
 		}
-		if (Array.isArray(item) && item[item.length - 1].$class
+		if ((Array.isArray(item) || item instanceof Array) && item[item.length - 1].$class
 				&& Object.keys(item[item.length - 1]).length === 1) {
 			if(typeof (context[item[item.length - 1].$class]) === "function") {
 				return context[item[item.length - 1].$class];
@@ -145,7 +129,7 @@
 		// process objects and return possibly modified item
 		if (cons) {
 			obj = Object.create(cons.prototype);
-			obj.constructor = cons;
+			Object.defineProperty(obj,"constructor",{enumerable:false,configurable:true,writable:true,value:cons});
 			Object.keys(item).forEach(function(key,i) {
 				if (key !== "$class" && (i!==item.length-1 || !(Array.isArray(item) || item instanceof Array))) { // skip the $class data
 					obj[key] = item[key];
