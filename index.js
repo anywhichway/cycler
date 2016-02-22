@@ -162,9 +162,6 @@
 
 	cycler.retrocycle = function retrocycle($, context) {
 
-		function resolve(string) {
-			return eval(string);
-		}
 		// Restore an object that was reduced by decycle. Members whose values are
 		// objects of the form
 		//      {$ref: PATH}
@@ -218,7 +215,7 @@
 						if (item && typeof item === "object"
 								&& typeof item.$ref === "string"
 								&& px.test(item.$ref)) {
-							value[name] = resolve(item.$ref);
+							value[name] = Function("dollar","var $ = dollar; return " + item.$ref)($);
 						} else if (item && typeof item === "object") {
 							rez(item);
 						}

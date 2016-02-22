@@ -14,6 +14,18 @@ describe('Cycler ', function() {
 		var retrocycled = Cycler.retrocycle(decycled);
 		expect(retrocycled.related.related).to.equal(retrocycled);
 	});
+	it('should support complex cycling Objects ', function() {
+		var a = {name:"a"};
+		var b = {name:"b"};
+		var c = {name:"c"}
+		a.related = b;
+		b.related = a;
+		b.anotherRelation = c;
+		c.related = b;
+		var decycled = Cycler.decycle(a);
+		var retrocycled = Cycler.retrocycle(decycled);
+		expect(retrocycled.related.anotherRelation.related).to.equal(retrocycled.related);
+	});
 	it('should support cycling null property values ', function() {
 		var a = {name:"a",unrelated:null};
 		var b = {name:"b",unrelated:null};
