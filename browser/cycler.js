@@ -17,6 +17,10 @@
 	"use strict";
 
 	var cycler = {};
+	
+	function isArray(value) {
+		return Array.isArray(value) || value instanceof Array;
+	}
 
 	// AnyWhichWay, Feb 2016, isolates code for tagging objects with $class
 	// during decycle. See resurrect for the converse.
@@ -33,7 +37,7 @@
 		}
 		// add the $class info to array or object
 		if (classname && classname.length > 0) { 
-			if (Array.isArray(decycled)) {
+			if (isArray(decycled)) {
 				decycled.push({
 					$class : classname
 				});
@@ -44,11 +48,15 @@
 		}
 	}
 	
-	function decyclable(value) {
-		return value instanceof Object
+	function getContext(context) {
+		return (context ? context : (typeof (window) !== "undefined" ? window : global));
+	}
+	
+	function isDecyclable(value) {
+		return typeof(value)==="object" && value
 		&& !(value instanceof Boolean) && !(value instanceof Date)
 		&& !(value instanceof Number) && !(value instanceof RegExp)
-		&& !(value instanceof String)
+		&& !(value instanceof String);
 	}
 
 	cycler.decycle = function decycle(object, context) {
@@ -72,8 +80,7 @@
 		// child member or property.
 
 		// AnyWhichWay, Feb 2016, establish context
-		context = (context ? context
-				: (typeof (window) !== "undefined" ? window : global));
+		context = getContext(context);
 
 		// AnyWhichWay, Feb 201, replaced objects and paths arrays with Map
 		var objects = new Map(); 
@@ -83,13 +90,10 @@
 			// The derez recurses through the object, producing the deep copy.
 
 			var pathfound, // AnyWhichWay added Feb 2016
-			nu = (Array.isArray(value) || value instanceof Array ? [] : {}); 
-
-			// typeof null === "object", so go on if this value is really an
-			// object but not one of the weird builtin objects.
+			nu = (isArray(value) ? [] : {}); 
 
 			// AnyWhichWay, Feb 2016, converted test to function call
-			if (decyclable(value)) { 
+			if (isDecyclable(value)) { 
 
 				// If the value is an object or array, look to see if we have
 				// encountered it. If so, return a $ref/path object.
@@ -108,7 +112,7 @@
 						function(key) {
 							nu[key] = derez(value[key], path
 									+ "["
-									+ (Array.isArray(nu) ? key : JSON
+									+ (isArray(nu) ? key : JSON
 											.stringify(key)) + "]");
 						});
 				// AnyWhichWay, Feb 2016 augment with $class
@@ -128,7 +132,7 @@
 			// otherwise delete the $class data
 			delete item.$class;
 		}
-		if ((Array.isArray(item) || item instanceof Array)
+		if (isArray(item)
 				&& item[item.length - 1].$class
 				&& Object.keys(item[item.length - 1]).length === 1) {
 			if (typeof (context[item[item.length - 1].$class]) === "function") {
@@ -153,7 +157,7 @@
 			});
 			Object.keys(item).forEach(function(key, i) {
 				// skip class spec
-				if (key !== "$class" && (i !== item.length - 1 || !(Array.isArray(item) || item instanceof Array))) {
+				if (key !== "$class" && (i !== item.length - 1 || !isArray(item))) {
 					obj[key] = item[key];
 				}
 			});
@@ -189,8 +193,7 @@
 		// itself.
 
 		// AnyWhichWay, Feb 2016, establish the context
-		context = (context ? context
-				: (typeof (window) !== "undefined" ? window : global));
+		context = getContext(context)
 
 		// AnyWhichWay, Feb 2016 do any required top-level conversion from
 		// POJO's to $classs
@@ -230,7 +233,7 @@
 
 	if (this.exports) {
 		this.exports = cycler;
-	} else if (typeof define === "function" && define.amd) {
+	} else if (typeof(define) === "function" && typeof(define.amd)!=="undefined") {
 		define(function() {
 			return cycler;
 		});
