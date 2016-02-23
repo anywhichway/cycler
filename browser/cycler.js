@@ -22,8 +22,8 @@
 	// during decycle. See resurrect for the converse.
 	function augment(context, original, decycled) {
 		var classname = original.constructor.name;
-		if (!classname || classname === "") { // look in context if classname
-												// not available
+		// look in context if classname not available
+		if (!classname || classname === "") { 
 			Object.keys(context).some(function(name) {
 				if (context[name] === original.constructor) {
 					classname = name;
@@ -31,8 +31,8 @@
 				}
 			});
 		}
-		if (classname && classname.length > 0) { // add the $class info to
-													// array or object
+		// add the $class info to array or object
+		if (classname && classname.length > 0) { 
 			if (Array.isArray(decycled)) {
 				decycled.push({
 					$class : classname
@@ -42,6 +42,13 @@
 			decycled.$class = classname;
 			return decycled;
 		}
+	}
+	
+	function decyclable(value) {
+		return value instanceof Object
+		&& !(value instanceof Boolean) && !(value instanceof Date)
+		&& !(value instanceof Number) && !(value instanceof RegExp)
+		&& !(value instanceof String)
 	}
 
 	cycler.decycle = function decycle(object, context) {
@@ -68,8 +75,8 @@
 		context = (context ? context
 				: (typeof (window) !== "undefined" ? window : global));
 
-		var objects = new Map(); // AnyWhichWay, replaced objects and paths
-									// arrays with Map, Feb 2016
+		// AnyWhichWay, Feb 201, replaced objects and paths arrays with Map
+		var objects = new Map(); 
 
 		return (function derez(value, path) {
 
@@ -81,24 +88,22 @@
 			// typeof null === "object", so go on if this value is really an
 			// object but not one of the weird builtin objects.
 
-			if (typeof value === "object" && value !== null
-					&& !(value instanceof Boolean) && !(value instanceof Date)
-					&& !(value instanceof Number) && !(value instanceof RegExp)
-					&& !(value instanceof String)) {
+			// AnyWhichWay, Feb 2016, converted test to function call
+			if (decyclable(value)) { 
 
 				// If the value is an object or array, look to see if we have
 				// encountered it. If so, return a $ref/path object.
-				pathfound = objects.get(value); // AnyWhichWay replaced array
-												// loops with Map get, Feb 2016
+				// AnyWhichWay, Feb 2016 replaced array loops with Map get
+				pathfound = objects.get(value); 
 				if (pathfound) {
 					return {
 						$ref : pathfound
 					};
 				}
 				// Otherwise, accumulate the unique value and its path.
-				objects.set(value, path); // AnyWhichWay, Feb 2016 replace
-											// array objects and paths with Map,
-											// Feb 2016
+				// AnyWhichWay, Feb 2016 replace array objects and paths with Map
+				objects.set(value, path); 
+
 				Object.keys(value).forEach(
 						function(key) {
 							nu[key] = derez(value[key], path
@@ -106,8 +111,8 @@
 									+ (Array.isArray(nu) ? key : JSON
 											.stringify(key)) + "]");
 						});
-				return augment(context, value, nu); // AnyWhichWay, Feb 2016
-													// augment with $class
+				// AnyWhichWay, Feb 2016 augment with $class
+				return augment(context, value, nu); 
 			}
 			// otherwise, just return value
 			return value;
@@ -136,7 +141,7 @@
 	// AnyWhichWay, Feb 2016, isolates code for resurrecting objects as their
 	// original type see augment for inverse
 	function resurrect(context, item) {
-		var cons = getConstructor(context, item)
+		var cons = getConstructor(context, item);
 		// process objects and return possibly modified item
 		if (cons) {
 			var obj = Object.create(cons.prototype);

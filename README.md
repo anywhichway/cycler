@@ -19,6 +19,8 @@ Cycler enhances cycle.js by:
 * distinct packaging for NodeJS and the browser including pre-minified code
 * the addition of unit tests
 
+For a detailed review of the changes see http://anywhichway.github.io/cycler.html
+
 For reference here is the cycle.js download data:
 
 [![NPM](https://nodei.co/npm/cycle.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/cycle/)
@@ -55,4 +57,10 @@ You will not need to use the context argument for ```.retrocycle```, if all your
 
 If constructors are unavailable in a target restoration environment, then POJOs will be returned.
 
+# Building & Testing
 
+Building & testing is conducted using Travis, Mocha, Chai, and Istanbul.
+
+# Updates (reverse chronological order)
+
+2016-02-XX v0.0.1 - v0.0.8 ongoing optimization and enhancement of Douglas Crockfords cycle.js. v0.0.8 appears to be as far as things can be taken.
