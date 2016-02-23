@@ -1,6 +1,6 @@
 {
   "name": "cycler",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A browser and NodeJS library for 'decyling' and 'recycling' cyclic Javascript objects.",
   "keywords": [
     "JavaScript",
@@ -8,6 +8,7 @@
     "recycler",
     "circular",
     "cycle",
+    "decycle",
     "JSON",
     "Node.js"
   ],
