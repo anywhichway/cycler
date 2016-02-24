@@ -191,7 +191,7 @@
 		// itself.
 
 		// AnyWhichWay, Feb 2016, establish the context
-		context = getContext(context)
+		context = getContext(context);
 
 		// AnyWhichWay, Feb 2016 do any required top-level conversion from
 		// POJO's to $classs
