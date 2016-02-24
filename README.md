@@ -30,7 +30,7 @@ Please star Cycler on NPM and GitHub if you find it useful.
 
 # Installation
 
-npm install jovial
+npm install cycler
 
 The index.js and package.json files are compatible with https://github.com/anywhichway/node-require so that Cycler can be served directly to the browser from the node-modules/cycler directory when using node Express.
 
