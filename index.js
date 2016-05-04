@@ -125,41 +125,41 @@
 		// process objects and return possibly modified item
 		if (item && item.$class) {
 			if (typeof (context[item.$class]) === "function") {
-				return context[item.$class];
+				var value = context[item.$class];
+				delete item.$class;
+				return value;
 			}
-			// otherwise delete the $class data
-			delete item.$class;
+			return Object; // don't delete item.$class since it will be useful for debugging scope issues
 		}
 		if (isArray(item)
 				&& item[item.length - 1].$class
 				&& Object.keys(item[item.length - 1]).length === 1) {
 			if (typeof (context[item[item.length - 1].$class]) === "function") {
-				return context[item[item.length - 1].$class];
+				var value = context[item[item.length - 1].$class];
+				delete item[item.length - 1].$class;
+				return value;
 			}
-			// otherwise delete the $class data
-			item.splice(item.length - 1, 1);
+			return Object;
 		}
 	}
 	// AnyWhichWay, Feb 2016, isolates code for resurrecting objects as their
 	// original type see augment for inverse
+	// AnyWhichWay, Feb 2016, isolates code for resurrecting objects as their
+	// original type see augment for inverse. Optimized May, 2016
 	function resurrect(context, item) {
 		var cons = getConstructor(context, item);
 		// process objects and return possibly modified item
 		if (cons) {
-			var obj = Object.create(cons.prototype);
-			Object.defineProperty(obj, "constructor", {
-				enumerable : false,
-				configurable : true,
-				writable : true,
-				value : cons
-			});
+			var properties = {constructor: {enumerable:false,configurable:true,writable:true,value:cons}};
 			Object.keys(item).forEach(function(key, i) {
-				// skip class spec
-				if (key !== "$class" && (i !== item.length - 1 || !isArray(item))) {
-					obj[key] = item[key];
+				// hide class spec if it exists
+				if(key==="$class") {
+					properties[key] = {configurable:true,writable:true,value:item[key]};
+				} else if (i !== item.length - 1 || !isArray(item)) {
+					properties[key] = {configurable:true,writable:true,enumerable:true,value:item[key]};
 				}
 			});
-			return obj;
+			return Object.create(cons.prototype,properties);
 		}
 		return item;
 	}
@@ -189,6 +189,11 @@
 		// return JSON.retrocycle(JSON.parse(s));
 		// produces an array containing a single element which is the array
 		// itself.
+		
+		// AnyWhichWay, May 2016, just return if not object
+		if(typeof($)!=="object" || !$) {
+			return $;
+		}
 
 		// AnyWhichWay, Feb 2016, establish the context
 		context = getContext(context);
