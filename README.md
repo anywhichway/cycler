@@ -63,4 +63,6 @@ Building & testing is conducted using Travis, Mocha, Chai, and Istanbul.
 
 # Updates (reverse chronological order)
 
+2016-05-04 v0.1.0 - simplified packaging, no functional changes, amd modules no longer supported which may break dependents, so major version incremented.
+
 2016-02-XX v0.0.1 - v0.0.8 ongoing optimization and enhancement of Douglas Crockfords cycle.js. v0.0.8 appears to be as far as things can be taken.

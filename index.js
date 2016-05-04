@@ -229,15 +229,10 @@
 		return $;
 	};
 
-	if (this.exports) {
-		this.exports = cycler;
-	} else if (typeof(define) === "function" && typeof(define.amd)!=="undefined") {
-		define(function() {
-			return cycler;
-		});
-	} else {
-		this.Cycler = cycler;
+	if(typeof(module)!=="undefined") {
+		module.exports = cycler;
 	}
-
-}).call((typeof (window) !== "undefined" ? window
-		: (typeof (module) !== "undefined" ? module : null)));
+	if(typeof(window)!=="undefined") {
+		window.Cycler = cycler;
+	}
+})();

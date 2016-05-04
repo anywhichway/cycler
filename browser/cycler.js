@@ -193,7 +193,7 @@
 		// itself.
 
 		// AnyWhichWay, Feb 2016, establish the context
-		context = getContext(context)
+		context = getContext(context);
 
 		// AnyWhichWay, Feb 2016 do any required top-level conversion from
 		// POJO's to $classs
@@ -231,17 +231,12 @@
 		return $;
 	};
 
-	if (this.exports) {
-		this.exports = cycler;
-	} else if (typeof(define) === "function" && typeof(define.amd)!=="undefined") {
-		define(function() {
-			return cycler;
-		});
-	} else {
-		this.Cycler = cycler;
+	if(typeof(module)!=="undefined") {
+		module.exports = cycler;
 	}
-
-}).call((typeof (window) !== "undefined" ? window
-		: (typeof (module) !== "undefined" ? module : null)));
+	if(typeof(window)!=="undefined") {
+		window.Cycler = cycler;
+	}
+})();
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}]},{},[1]);
