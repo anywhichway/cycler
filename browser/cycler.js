@@ -125,9 +125,10 @@
 
 	function getConstructor(context, item) {
 		// process objects and return possibly modified item
+		var value;
 		if (item && item.$class) {
 			if (typeof (context[item.$class]) === "function") {
-				var value = context[item.$class];
+				value = context[item.$class];
 				delete item.$class;
 				return value;
 			}
@@ -137,7 +138,7 @@
 				&& item[item.length - 1].$class
 				&& Object.keys(item[item.length - 1]).length === 1) {
 			if (typeof (context[item[item.length - 1].$class]) === "function") {
-				var value = context[item[item.length - 1].$class];
+				value = context[item[item.length - 1].$class];
 				delete item[item.length - 1].$class;
 				return value;
 			}

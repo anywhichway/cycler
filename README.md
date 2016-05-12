@@ -63,6 +63,8 @@ Building & testing is conducted using Travis, Mocha, Chai, and Istanbul.
 
 # Updates (reverse chronological order)
 
+2016-05-12 v0.1.2 - Minor code style improvements.
+
 2016-05-05 v0.1.1 - Modified behavior so that if a class can't be found in scope for reviving, then a POJO is created and the $class property is left in place as a non-enumerable property to support debugging. Modified behavior so retrocycle just returns value if it is not an object. Optimized resurrect function down to one call from multiple property creation calls.
 
 2016-05-04 v0.1.0 - simplified packaging, no functional changes, amd modules no longer supported which may break dependents, so major version incremented.
