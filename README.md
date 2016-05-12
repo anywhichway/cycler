@@ -4,6 +4,8 @@
 [![Test Coverage](https://codeclimate.com/github/anywhichway/cycler/badges/coverage.svg)](https://codeclimate.com/github/anywhichway/cycler/coverage)
 [![Issue Count](https://codeclimate.com/github/anywhichway/cycler/badges/issue_count.svg)](https://codeclimate.com/github/anywhichway/cycler)
 
+[![NPM](https://nodei.co/npm/cycler.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/cycler/)
+
 
 # cycler.js
 
